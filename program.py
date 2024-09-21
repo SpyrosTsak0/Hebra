@@ -132,7 +132,7 @@ def printStatus():
         
 
 def printInvalidCommand():
-    print("Invaild command. To check the list of available commands, run 'help'") 
+    print("Invaild command. To check the list of available commands, run '--help'") 
 
 def printHelp():
     print("--------------------\n\n\nHelp Page\n\n\n--------------------")
@@ -153,7 +153,7 @@ if len(arguments) > 0:
             else:
                 printStatus()
                     
-        case "help":
+        case "--help":
             printHelp()
 
         case _:
