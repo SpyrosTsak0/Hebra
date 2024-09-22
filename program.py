@@ -8,7 +8,6 @@ url = "https://api.github.com"
 arguments = sys.argv
 arguments.remove(arguments[0])
 arguments_length = len(arguments)
-token = ""  # ---- Enter your access token here ----
 
 class _repository:
     def __init__(self, name, id, auto_delete_bool):
@@ -16,11 +15,6 @@ class _repository:
         self.id = id
         self.auto_delete_bool = auto_delete_bool
 
-
-def checkForToken():
-    if token == None:
-         print("Your personal access token has not been set. Run the 'help' command for more information.")
-         quit()
 
 def printRepositoriesStatus(repositories):
     for repository in repositories:
@@ -35,7 +29,7 @@ def printRepositoriesStatus(repositories):
         else:
             print(f"Something has went wrong.\nError: The boolean 'delete_branch_on_merge' could not be found in repository '{repository_name}' (ID: {repository_id}).\nThis could happen due to an invalid or expired access token when accesing a public repository.")
     
-def getRepositories(repository_ids):
+def getRepositories(token, repository_ids):
     repositories = list()
 
     for repository_id in repository_ids:
@@ -52,7 +46,7 @@ def getRepositories(repository_ids):
     
     return repositories 
 
-def getRepositoriesIDs():
+def getRepositoriesIDs(token):
     repository_ids = list()
 
     response = requests.get(f"{url}/user/repos", auth=(None, token))
@@ -110,10 +104,15 @@ def readRepositories():
             except:
                 return None
 
+def getAccessToken():
+    token = input("Enter your access token: ")
+    return token
 
 def updateStatus():
-    repository_ids = getRepositoriesIDs()
-    repositories = getRepositories(repository_ids)
+    token = getAccessToken()
+
+    repository_ids = getRepositoriesIDs(token)
+    repositories = getRepositories(token, repository_ids)
     saveRepositories(repositories)
 
     print("-- Repositories' status updated --")
