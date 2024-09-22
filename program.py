@@ -118,7 +118,6 @@ def updateStatus():
     print("-- Repositories' status updated --")
 
 def printStatus():
-    checkForToken()
     repositories = readRepositories()
 
     if repositories != None:
