@@ -55,7 +55,7 @@ def getRepositoriesIDs(token):
     if type(repositories_info) == dict:
         _list = list().append(repositories_info)
         repositories_info = _list
-
+    
     for repository_info in repositories_info:
         repository_id = repository_info.get("id")
         repository_ids.append(repository_id)
@@ -108,9 +108,7 @@ def getAccessToken():
     token = input("Enter your access token: ")
     return token
 
-def updateStatus():
-    token = getAccessToken()
-
+def updateStatus(token):
     repository_ids = getRepositoriesIDs(token)
     repositories = getRepositories(token, repository_ids)
     saveRepositories(repositories)
@@ -127,10 +125,25 @@ def printStatus():
         updateStatus()
         repositories = readRepositories()
         printRepositoriesStatus(repositories)
-        
+
+def alterStatus(token, auto_delete_bool):
+    
+    repository_ids = getRepositoriesIDs(token)
+
+    for repository_id in repository_ids:
+        json_body_dict = {"delete_branch_on_merge": auto_delete_bool}
+        json_body_string = json.dumps(json_body_dict)
+
+        response = requests.patch(f"{url}/repositories/{repository_id}", json_body_string, auth=(None, token))
+    
+    print("-- Repositories' status altered --")
+    updateStatus(token)    
+
+
 
 def printInvalidCommand():
-    print("Invaild command. To check the list of available commands, run '--help'") 
+    print("Invaild command. To check the list of available commands, run '--help'")
+    quit()
 
 def printHelp():
     print("--------------------\n\n\nHelp Page\n\n\n--------------------")
@@ -143,16 +156,37 @@ if len(arguments) > 0:
             if len(arguments) > 1:
                 match arguments[1]:
                     case "--update" | "-u":
-                        updateStatus()
-                        printStatus()
+                        token = getAccessToken()
+                        updateStatus(token)
 
                     case _:
                         printInvalidCommand()
-            else:
-                printStatus()
+                
+            printStatus()
                     
         case "--help":
             printHelp()
+        
+        case "alter":
+
+            if len(arguments) > 1: 
+                match arguments[1]:
+                    case "--enable" | "-e":
+                        token = getAccessToken()
+                        alterStatus(token, True)
+
+                    case "--disable" | "-d":
+                        token = getAccessToken()
+                        alterStatus(token, False)
+                    
+                    case _:
+                        printInvalidCommand()
+            else: 
+                token = getAccessToken()
+                alterStatus(token, True)
+            
+            printStatus()
+            
 
         case _:
             printInvalidCommand()     
