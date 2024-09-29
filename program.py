@@ -72,7 +72,7 @@ def getRepositories(token, repository_ids):
     
     return repositories 
 
-def getRepositoriesIDs(token):
+def getRepositoriesIDs(token, repository_names = None):
     repository_ids = list()
 
     response = requests.get(f"{url}/user/repos", auth=(None, token))
@@ -84,9 +84,18 @@ def getRepositoriesIDs(token):
         _list = list().append(repositories_info)
         repositories_info = _list
     
-    for repository_info in repositories_info:
-        repository_id = repository_info.get("id")
-        repository_ids.append(repository_id)
+    if repository_names == None:
+        for repository_info in repositories_info:
+            repository_id = repository_info.get("id")
+            repository_ids.append(repository_id)
+    else:
+        for repository_info in repositories_info:
+            _repository_name = repository_info.get("name")
+            
+            for repository_name in repository_names:
+                if repository_name == _repository_name:
+                    repository_id = repository_info.get("id")
+                    repository_ids.append(repository_id)
 
     return repository_ids 
 
@@ -154,9 +163,9 @@ def printStatus():
         repositories = readRepositories()
         printRepositoriesStatus(repositories)
 
-def alterStatus(token, auto_delete_bool):
+def alterStatus(token, auto_delete_bool, repository_names = None):
     
-    repository_ids = getRepositoriesIDs(token)
+    repository_ids = getRepositoriesIDs(token, repository_names = repository_names)
 
     for repository_id in repository_ids:
         json_body_dict = {"delete_branch_on_merge": auto_delete_bool}
@@ -213,8 +222,17 @@ if arguments_length > 0:
                     case "--disable" | "-d":
                         auto_delete_bool = False
 
+            repository_names = None
             
-            alterStatus(token, auto_delete_bool)
+            if arguments_length > 1:
+                repository_names = list()
+
+                for arguments_count in range(1, arguments_length):
+                    argument = arguments[arguments_count]
+                    repository_names.append(argument)
+                
+
+            alterStatus(token, auto_delete_bool, repository_names)
 
             printStatus()
             
