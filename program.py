@@ -5,9 +5,6 @@ import requests
 
 
 url = "https://api.github.com"
-arguments = sys.argv
-arguments.remove(arguments[0])
-arguments_length = len(arguments)
 
 class _repository:
     def __init__(self, name, id, auto_delete_bool):
@@ -15,6 +12,28 @@ class _repository:
         self.id = id
         self.auto_delete_bool = auto_delete_bool
 
+
+def getArguments():
+    _arguments = list(sys.argv)
+    filename_string = _arguments[0]
+    _arguments.remove(filename_string)
+
+    for string in _arguments:
+        if string.startswith("-"):
+            _arguments.remove(string)
+
+    return _arguments
+
+def getOptions():
+    _options = list(sys.argv)
+    filename_string = _options[0]
+    _options.remove(filename_string)
+
+    for string in _options:
+        if not string.startswith("-"):
+            _options.remove(string)
+    
+    return _options
 
 def printRepositoriesStatus(repositories):
     for repository in repositories:
@@ -149,19 +168,23 @@ def printHelp():
     print("--------------------\n\n\nHelp Page\n\n\n--------------------")
 
 
-if len(arguments) > 0:
-    match arguments[0]:
+arguments = getArguments()
+arguments_length = len(arguments)
+options = getOptions()
+
+if arguments_length > 0:
+    command = arguments[0]
+
+    match command:
+        
         case "status":
             
-            if len(arguments) > 1:
-                match arguments[1]:
+            for option in options:
+                match option:
                     case "--update" | "-u":
                         token = getAccessToken()
                         updateStatus(token)
 
-                    case _:
-                        printInvalidCommand()
-                
             printStatus()
                     
         case "--help":
@@ -169,25 +192,21 @@ if len(arguments) > 0:
         
         case "alter":
 
-            if len(arguments) > 1: 
-                match arguments[1]:
-                    case "--enable" | "-e":
-                        token = getAccessToken()
-                        alterStatus(token, True)
+            token = getAccessToken()
+            auto_delete_bool = True
 
+            for option in options:
+                match option:
+                    case "--enable" | "-e":
+                        auto_delete_bool = True
                     case "--disable" | "-d":
-                        token = getAccessToken()
-                        alterStatus(token, False)
-                    
-                    case _:
-                        printInvalidCommand()
-            else: 
-                token = getAccessToken()
-                alterStatus(token, True)
+                        auto_delete_bool = False
+
+            
+            alterStatus(token, auto_delete_bool)
             
             printStatus()
             
-
         case _:
             printInvalidCommand()     
 else:
