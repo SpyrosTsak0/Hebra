@@ -33,6 +33,14 @@ def getOptions():
     
     return _options
 
+def checkStatusCode(status_code):
+    status_code_string = str(status_code)
+    is_successful = status_code_string.startswith("2")
+
+    if not is_successful:
+        print("Something has went wrong.\nError: The https request was not successful. This could happen due to an invalid or expired access token or due to a server-side error.")
+        quit()
+
 def printRepositoriesStatus(repositories):
     for repository in repositories:
         repository_name = repository.name
@@ -51,6 +59,7 @@ def getRepositories(token, repository_ids):
 
     for repository_id in repository_ids:
         response = requests.get(f"{url}/repositories/{repository_id}", auth=(None, token))
+        checkStatusCode(response.status_code)
 
         repository_info = response.json()
 
@@ -67,6 +76,8 @@ def getRepositoriesIDs(token):
     repository_ids = list()
 
     response = requests.get(f"{url}/user/repos", auth=(None, token))
+    checkStatusCode(response.status_code)
+
     repositories_info = response.json()
 
     if type(repositories_info) == dict:
@@ -152,6 +163,7 @@ def alterStatus(token, auto_delete_bool):
         json_body_string = json.dumps(json_body_dict)
 
         response = requests.patch(f"{url}/repositories/{repository_id}", json_body_string, auth=(None, token))
+        checkStatusCode(response.status_code)
     
     print("-- Repositories' status altered --")
     updateStatus(token)    
@@ -203,7 +215,7 @@ if arguments_length > 0:
 
             
             alterStatus(token, auto_delete_bool)
-            
+
             printStatus()
             
         case _:
