@@ -4,8 +4,6 @@ import json
 import requests
 
 
-url = "https://api.github.com"
-
 class _repository:
     def __init__(self, name, id, auto_delete_bool):
         self.name = name
@@ -168,6 +166,7 @@ def printHelp():
     print("--------------------\n\n\nHelp Page\n\n\n--------------------")
 
 
+url = "https://api.github.com"
 arguments = getArguments()
 arguments_length = len(arguments)
 options = getOptions()
