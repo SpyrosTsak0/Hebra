@@ -39,7 +39,7 @@ def checkStatusCode(status_code):
 
     if not is_successful:
         print("Something has went wrong.\nError: The https request was not successful. This could happen due to an invalid or expired access token or due to a server-side error.")
-        quit()
+        sys.exit(1)
 
 def printRepositoriesStatus(repositories):
     for repository in repositories:
@@ -53,6 +53,7 @@ def printRepositoriesStatus(repositories):
             print(f" > Head branches are NOT automatically deleted in repository '{repository_name}' (ID: {repository_id}).")
         else:
             print(f"Something has went wrong.\nError: The boolean 'delete_branch_on_merge' could not be found in repository '{repository_name}' (ID: {repository_id}).\nThis could happen due to an invalid or expired access token when accesing a public repository.")
+            sys.exit(1)
     
 def getRepositories(token, repository_ids):
     repositories = list()
@@ -181,7 +182,7 @@ def alterStatus(token, auto_delete_bool, repository_names = None):
 
 def printInvalidCommand():
     print("Invaild command. To check the list of available commands, run '--help'")
-    quit()
+    sys.exit(1)
 
 def printHelp():
     print("--------------------\n\n\nHelp Page\n\n\n--------------------")
