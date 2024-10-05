@@ -2,9 +2,9 @@
 **Hebra** (short for "HEad BRAnches") is a Python-based tool designed to manage and enable the automatic deletion of head branches on GitHub. Currently in its early development stages, Hebra utilizes the GitHub API to enable the feature of cleaning up branches when accepting pull requests and merging to the main branch. As it is still in its initial phases, the tool runs through the Python interpreter for now. Future updates are bound to come and any contributions are extremely welcome.
 
 ## Table of Contents
-[1.  Installation](#installation)
-[2.  Usage](#usage)
-[3.  Contributing](#contributing)
+[1.  Installation](#installation)<br>
+[2.  Usage](#usage)<br>
+[3.  Contributing](#contributing)<br>
 [4.  License](#license)
 
 ### Installation
@@ -44,4 +44,4 @@ Contributions are very welcome. Feel free to submit a pull request, open an issu
 - Open a pull request
 
 ### License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](assets/LICENSE) file for details.
