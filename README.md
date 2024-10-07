@@ -25,7 +25,7 @@ python hebra.py ([arguments]) ([options])
 Replace `[arguments]` and `[options]` with any required arguments or options.
 
 To view a full list of available commands and usage options, you can either:
-- Request the help page:
+- Request the [help page](data/help.txt):
 ```
 python hebra.py --help
 ```
