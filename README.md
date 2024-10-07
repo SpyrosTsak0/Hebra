@@ -15,7 +15,7 @@ For now, you can get and test the program on your machine by either:<br>
 git clone https://github.com/SpyrosTsak0/Hebra.git
 ```
 - Or by downloading it as a zip through Github's website:<br>
-![Downloading as a zip file](assets/readme_images/downloading_as_zip.png)
+![Downloading as a zip file](extra/readme_images/downloading_as_zip.png)
 
 ### Usage
 As Hebra is still in its early development, it currently uses the python interpreter to work. To run the main script, type:
@@ -44,4 +44,4 @@ Contributions are very welcome. Feel free to submit a pull request, open an issu
 - Open a pull request
 
 ### License
-This project is licensed under the MIT License - see the [LICENSE](assets/LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
