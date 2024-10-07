@@ -185,7 +185,14 @@ def printInvalidCommand():
     sys.exit(1)
 
 def printHelp():
-    print("--------------------\n\n\nHelp Page\n\n\n--------------------")
+
+    try:
+        with open("data/help.txt", "r") as help_file:
+            help_content = help_file.read()
+            print(help_content)
+    except:
+        print("Something has went wrong.\nError: The Help file could not be found. Please make sure that the 'help.txt' file is located in the 'data' directory.")
+
 
 
 url = "https://api.github.com"

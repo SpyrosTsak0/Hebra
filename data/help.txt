@@ -1,0 +1,43 @@
+Usage: script.py [command] [options]
+
+Available commands:
+
+  status         Display the status of your repositories.
+                 Use -u or --update to update the repositories before showing their status.
+                 (If the "repositories.json" file contains invalid json syntax or does not exist, the update command will be executed automatically).
+  
+  alter          Alter the status of your repositories. Enable or disable the auto-deletion of head branches.
+                 Takes repository name(s) as additional arguments (If further arguments are not provided, the command will be executed on all repositories).
+
+                 Use -e or --enable to enable auto-deletion. (default)
+                 Use -d or --disable to disable auto-deletion.
+  
+  --help         Display this help page.
+
+Options:
+
+  -u, --update   Update the status of the repositories (use with the "status" command).
+  -e, --enable   Enable automatic deletion of head branches (use with the "alter" command).
+  -d, --disable  Disable automatic deletion of head branches (use with the "alter" command).
+
+Examples:
+
+  To check the status of all repositories:
+      hebra.py status
+  
+  To update repository status and then display it:
+      hebra.py status --update
+  
+  To enable auto-deletion for all repositories:
+     hebra.py alter ( --enable )
+  
+  To disable auto-deletion for all repositories:
+     hebra.py alter --disable
+
+  To enable auto-deletion for a specific repository:
+      hebra.py alter --enable repository_name
+  
+  To disable auto-deletion for multiple repositories:
+      hebra.py alter --disable repository_name_1 repository_name_2 repository_name_3
+  
+--------------------
