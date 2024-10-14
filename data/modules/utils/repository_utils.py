@@ -1,4 +1,4 @@
-from data.modules.utils.auth import *
+from data.modules.utils.auth_utils import *
 from data.modules.configs.default_configs import api_url, repositories_json_file_path
 import requests
 import json

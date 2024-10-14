@@ -1,6 +1,6 @@
-from data.modules.program import run
+import data.modules.program as program
 
-run()
+program.run()
 
 
 

@@ -1,5 +1,5 @@
 from data.modules.commands.main_commands import *
-from data.modules.utils.usr_input import *
+from data.modules.utils.usr_input_utils import *
 
 def run():
 

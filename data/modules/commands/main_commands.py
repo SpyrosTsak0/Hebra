@@ -1,5 +1,5 @@
-from data.modules.utils.repository import *
-from data.modules.utils.auth import getAccessToken
+from data.modules.utils.repository_utils import *
+from data.modules.utils.auth_utils import getAccessToken
 from data.modules.configs.default_configs import api_url
 import requests
 
