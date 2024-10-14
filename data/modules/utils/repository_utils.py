@@ -1,5 +1,5 @@
-from data.modules.utils.auth_utils import *
-from data.modules.configs.default_configs import api_url, repositories_json_file_path
+import data.modules.utils.auth_utils as auth_utils
+import data.modules.configs.default_configs as default_configs
 import requests
 import json
 import os
@@ -29,8 +29,8 @@ def getRepositories(token, repository_ids):
     repositories = list()
 
     for repository_id in repository_ids:
-        response = requests.get(f"{api_url}/repositories/{repository_id}", auth=(None, token))
-        checkStatusCode(response.status_code)
+        response = requests.get(f"{default_configs.api_url}/repositories/{repository_id}", auth=(None, token))
+        auth_utils.checkStatusCode(response.status_code)
 
         repository_info = response.json()
 
@@ -46,8 +46,8 @@ def getRepositories(token, repository_ids):
 def getRepositoriesIDs(token, repository_names = None):
     repository_ids = list()
 
-    response = requests.get(f"{api_url}/user/repos", auth=(None, token))
-    checkStatusCode(response.status_code)
+    response = requests.get(f"{default_configs.api_url}/user/repos", auth=(None, token))
+    auth_utils.checkStatusCode(response.status_code)
 
     repositories_info = response.json()
 
@@ -72,7 +72,7 @@ def getRepositoriesIDs(token, repository_names = None):
 
 def saveRepositories(repositories):
 
-    with open(repositories_json_file_path, "w") as repositories_datafile:
+    with open(default_configs.repositories_json_file_path, "w") as repositories_datafile:
         repositories_datafile.write("[")
 
         repositories_length = len(repositories)
@@ -91,10 +91,10 @@ def saveRepositories(repositories):
 
 def readRepositories():
 
-    if os.path.isfile(repositories_json_file_path):
+    if os.path.isfile(default_configs.repositories_json_file_path):
         repositories = list()
 
-        with open(repositories_json_file_path, "r") as repositories_datafile:
+        with open(default_configs.repositories_json_file_path, "r") as repositories_datafile:
             try:
                 repository_jsonstring = repositories_datafile.read()
                 repositories_list = json.loads(repository_jsonstring)

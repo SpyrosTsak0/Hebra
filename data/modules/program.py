@@ -1,11 +1,11 @@
-from data.modules.commands.main_commands import *
-from data.modules.utils.usr_input_utils import *
+import data.modules.commands.main_commands as main_commands
+import data.modules.utils.usr_input_utils as usr_input_utils
 
 def run():
 
-    arguments = getArguments()
+    arguments = usr_input_utils.getArguments()
     arguments_length = len(arguments)
-    options = getOptions()
+    options = usr_input_utils.getOptions()
 
     
     if arguments_length > 0:
@@ -18,17 +18,17 @@ def run():
                 for option in options:
                     match option:
                         case "--update" | "-u":
-                            token = getAccessToken()
-                            updateStatus(token)
+                            token = usr_input_utils.getAccessToken()
+                            main_commands.updateStatus(token)
 
-                printStatus()
+                main_commands.printStatus()
                     
             case "--help":
-                printHelp()
+                main_commands.printHelp()
         
             case "alter":
 
-                token = getAccessToken()
+                token = usr_input_utils.getAccessToken()
                 auto_delete_bool = True
 
                 for option in options:
@@ -48,11 +48,12 @@ def run():
                         repository_names.append(argument)
                 
 
-                alterStatus(token, auto_delete_bool, repository_names)
-
-                printStatus()
+                main_commands.alterStatus(token, auto_delete_bool, repository_names)
+                main_commands.updateStatus(token)
+                main_commands.printStatus()
             
             case _:
-                printInvalidCommand()     
+                print("Invaild command. To check the list of available commands, run '--help'")
+                sys.exit(1)     
     else:
-        printHelp()       
+        main_commands.printHelp()       

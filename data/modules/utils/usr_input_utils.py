@@ -21,3 +21,7 @@ def getOptions():
             _options.remove(string)
     
     return _options
+
+def getAccessToken():
+    token = input("Enter your access token: ")
+    return token

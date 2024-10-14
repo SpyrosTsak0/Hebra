@@ -7,7 +7,3 @@ def checkStatusCode(status_code):
     if not is_successful:
         print("Something has went wrong.\nError: The https request was not successful. This could happen due to an invalid or expired access token or due to a server-side error.")
         sys.exit(1)
-
-def getAccessToken():
-    token = input("Enter your access token: ")
-    return token
