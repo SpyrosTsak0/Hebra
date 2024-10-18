@@ -15,13 +15,12 @@ def run():
         
             case "status":
             
-                for option in options:
-                    match option:
-                        case "--update" | "-u":
-                            token = usr_input_utils.getAccessToken()
-                            main_commands.updateStatus(token)
-
                 main_commands.printStatus()
+            
+            case "update":
+                
+                token = usr_input_utils.getAccessToken()
+                main_commands.updateStatus(token)
                     
             case "--help":
                 main_commands.printHelp()
@@ -50,7 +49,6 @@ def run():
 
                 main_commands.alterStatus(token, auto_delete_bool, repository_names)
                 main_commands.updateStatus(token)
-                main_commands.printStatus()
             
             case _:
                 print("Invaild command. To check the list of available commands, run '--help'")

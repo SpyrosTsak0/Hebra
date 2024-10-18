@@ -5,10 +5,13 @@ import json
 import os
 
 class _repository:
-    def __init__(self, name, id, auto_delete_bool):
+    def __init__(self, name, id, auto_delete_bool, protection_rules = None):
         self.name = name
         self.id = id
         self.auto_delete_bool = auto_delete_bool
+        
+        if protection_rules is not None:
+            self.protection_rules = protection_rules
 
 
 def printRepositoriesStatus(repositories):
@@ -29,16 +32,23 @@ def getRepositories(token, repository_ids):
     repositories = list()
 
     for repository_id in repository_ids:
-        response = requests.get(f"{default_configs.api_url}/repositories/{repository_id}", auth=(None, token))
-        auth_utils.checkStatusCode(response.status_code)
+        main_response = requests.get(f"{default_configs.api_url}/repositories/{repository_id}", auth=(None, token))
+        
+        auth_utils.checkStatusCode(main_response.status_code)
 
-        repository_info = response.json()
+        main_repository_info = main_response.json()
 
-        repository_name = repository_info.get("name")
-        repository_id = repository_info.get("id")
-        repository_auto_delete_bool = repository_info.get("delete_branch_on_merge")
+        username = main_repository_info.get("owner").get("login")
 
-        repository = _repository(repository_name, repository_id, repository_auto_delete_bool)
+        repository_name = main_repository_info.get("name")
+        repository_id = main_repository_info.get("id")
+        repository_auto_delete_bool = main_repository_info.get("delete_branch_on_merge")
+
+        protection_response = requests.get(f"{default_configs.api_url}/repos/{username}/{repository_name}/branches/main/protection", auth=(None, token))
+
+        repository_protection = protection_response.json()
+
+        repository = _repository(repository_name, repository_id, repository_auto_delete_bool, repository_protection)
         repositories.append(repository)
     
     return repositories 

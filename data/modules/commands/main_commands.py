@@ -24,7 +24,7 @@ def updateStatus(token):
     repositories = repository_utils.getRepositories(token, repository_ids)
     repository_utils.saveRepositories(repositories)
 
-    print("-- Repositories' status updated --")
+    print("-- Repositories' status updated successfully --")
 
 def alterStatus(token, auto_delete_bool, repository_names = None):
     
@@ -37,7 +37,7 @@ def alterStatus(token, auto_delete_bool, repository_names = None):
         response = requests.patch(f"{default_configs.api_url}/repositories/{repository_id}", json_body_string, auth=(None, token))
         auth_utils.checkStatusCode(response.status_code)
     
-    print("-- Repositories' status altered --")    
+    print("-- Repositories' status altered successfully --")    
 
 def printHelp():
 
