@@ -5,25 +5,25 @@ import json
 import os
 
 class _repository:
-    def __init__(self, name, id, auto_delete_bool, protection_rules = None):
+    def __init__(self, name, id, auto_delete_head_bool, protection_rules = None):
         self.name = name
         self.id = id
-        self.auto_delete_bool = auto_delete_bool
+        self.auto_delete_head_bool = auto_delete_head_bool
         
         if protection_rules is not None:
             self.protection_rules = protection_rules
 
 
-def printRepositoriesStatus(repositories):
+def printRepositoriesAutoDeleteHeadStatus(repositories):
     for repository in repositories:
         repository_name = repository.name
         repository_id = repository.id
-        repository_auto_delete_bool = repository.auto_delete_bool
+        repository_auto_delete_head_bool = repository.auto_delete_head_bool
     
-        if repository_auto_delete_bool:
-            print(f" > Head branches are automatically deleted in repository '{repository_name}' (ID: {repository_id}).")
-        elif not repository_auto_delete_bool:
-            print(f" > Head branches are NOT automatically deleted in repository '{repository_name}' (ID: {repository_id}).")
+        if repository_auto_delete_head_bool:
+            print(f"  > Head branches are automatically deleted in repository '{repository_name}' (ID: {repository_id}).")
+        elif not repository_auto_delete_head_bool:
+            print(f"  > Head branches are NOT automatically deleted in repository '{repository_name}' (ID: {repository_id}).")
         else:
             print(f"Something has went wrong.\nError: The boolean 'delete_branch_on_merge' could not be found in repository '{repository_name}' (ID: {repository_id}).\nThis could happen due to an invalid or expired access token when accesing a public repository.")
             sys.exit(1)
@@ -42,13 +42,13 @@ def getRepositories(token, repository_ids):
 
         repository_name = main_repository_info.get("name")
         repository_id = main_repository_info.get("id")
-        repository_auto_delete_bool = main_repository_info.get("delete_branch_on_merge")
+        repository_auto_delete_head_bool = main_repository_info.get("delete_branch_on_merge")
 
         protection_response = requests.get(f"{default_configs.api_url}/repos/{username}/{repository_name}/branches/main/protection", auth=(None, token))
 
-        repository_protection = protection_response.json()
+        repository_protection_rules = protection_response.json()
 
-        repository = _repository(repository_name, repository_id, repository_auto_delete_bool, repository_protection)
+        repository = _repository(repository_name, repository_id, repository_auto_delete_head_bool, repository_protection_rules)
         repositories.append(repository)
     
     return repositories 
@@ -112,9 +112,9 @@ def readRepositories():
                 for repository_dict in repositories_list:
                     repository_name = repository_dict.get("name")
                     repository_id = repository_dict.get("id")
-                    repository_auto_delete_bool = repository_dict.get("auto_delete_bool")
+                    repository_auto_delete_head_bool = repository_dict.get("auto_delete_head_bool")
 
-                    repository = _repository(repository_name, repository_id, repository_auto_delete_bool)
+                    repository = _repository(repository_name, repository_id, repository_auto_delete_head_bool)
                     repositories.append(repository)
                 
                 return repositories

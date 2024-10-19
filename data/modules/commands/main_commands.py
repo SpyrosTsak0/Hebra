@@ -10,14 +10,14 @@ def printStatus():
     repositories = repository_utils.readRepositories()
 
     if repositories != None:
-        repository_utils.printRepositoriesStatus(repositories)
+        repository_utils.printRepositoriesAutoDeleteHeadStatus(repositories)
     
     else:
         token = usr_input_utils.getAccessToken()
 
         updateStatus(token)
         repositories = repository_utils.readRepositories()
-        repository_utils.printRepositoriesStatus(repositories)
+        repository_utils.printRepositoriesAutoDeleteHeadStatus(repositories)
 
 def updateStatus(token):
     repository_ids = repository_utils.getRepositoriesIDs(token)
@@ -26,7 +26,7 @@ def updateStatus(token):
 
     print("-- Repositories' status updated successfully --")
 
-def alterStatus(token, auto_delete_bool, repository_names = None):
+def alterRepositoriesAutoDeleteHeadStatus(token, auto_delete_bool, repository_names = None):
     
     repository_ids = repository_utils.getRepositoriesIDs(token, repository_names = repository_names)
 

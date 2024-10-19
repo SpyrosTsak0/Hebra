@@ -1,15 +1,20 @@
 import data.modules.commands.main_commands as main_commands
 import data.modules.utils.usr_input_utils as usr_input_utils
+import sys
 
 def run():
 
     arguments = usr_input_utils.getArguments()
     arguments_length = len(arguments)
-    options = usr_input_utils.getOptions()
 
     
     if arguments_length > 0:
+        
         command = arguments[0]
+        subcommand = None
+
+        if arguments_length > 1:
+            subcommand = arguments[1]
 
         match command:
         
@@ -25,17 +30,16 @@ def run():
             case "--help":
                 main_commands.printHelp()
         
-            case "alter":
+            case "auto-delete":
 
                 token = usr_input_utils.getAccessToken()
                 auto_delete_bool = True
-
-                for option in options:
-                    match option:
-                        case "--enable" | "-e":
-                            auto_delete_bool = True
-                        case "--disable" | "-d":
-                            auto_delete_bool = False
+   
+                match subcommand:
+                    case "enable":
+                         auto_delete_bool = True
+                    case "disable":
+                        auto_delete_bool = False
 
                 repository_names = None
             
@@ -47,7 +51,7 @@ def run():
                         repository_names.append(argument)
                 
 
-                main_commands.alterStatus(token, auto_delete_bool, repository_names)
+                main_commands.alterRepositoriesAutoDeleteHeadStatus(token, auto_delete_bool, repository_names)
                 main_commands.updateStatus(token)
             
             case _:
