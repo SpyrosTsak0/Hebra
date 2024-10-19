@@ -4,6 +4,7 @@ import data.modules.utils.usr_input_utils as usr_input_utils
 import data.modules.configs.default_configs as default_configs
 import requests
 import json
+import sys
 
 
 def printStatus():
@@ -47,3 +48,7 @@ def printHelp():
             print(help_content)
     except:
         print("Something has went wrong.\nError: The Help file could not be found. Please make sure that the 'help.txt' file is located in the 'data' directory.")
+
+def printInvalidCommandAndExit():
+    print("Invaild command. To check the list of available commands, run '--help'")
+    sys.exit(1)

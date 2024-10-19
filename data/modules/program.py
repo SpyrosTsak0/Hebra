@@ -1,6 +1,5 @@
 import data.modules.commands.main_commands as main_commands
 import data.modules.utils.usr_input_utils as usr_input_utils
-import sys
 
 def run():
 
@@ -55,7 +54,6 @@ def run():
                 main_commands.updateStatus(token)
             
             case _:
-                print("Invaild command. To check the list of available commands, run '--help'")
-                sys.exit(1)     
+                main_commands.printInvalidCommandAndExit()     
     else:
         main_commands.printHelp()       
