@@ -46,7 +46,10 @@ def getRepositories(token, repository_ids):
 
         protection_response = requests.get(f"{default_configs.api_url}/repos/{username}/{repository_name}/branches/main/protection", auth=(None, token))
 
-        repository_protection_rules = protection_response.json()
+        repository_protection_rules = None
+
+        if str(protection_response.status_code).startswith("2"):
+            repository_protection_rules = protection_response.json()
 
         repository = _repository(repository_name, repository_id, repository_auto_delete_head_bool, repository_protection_rules)
         repositories.append(repository)

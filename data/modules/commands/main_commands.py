@@ -52,3 +52,7 @@ def printHelp():
 def printInvalidCommandAndExit():
     print("Invaild command. To check the list of available commands, run 'help'")
     sys.exit(1)
+
+def printSubcommandNotSpecifiedAndExit(command_name):
+    print(f"A subcommand was not included with command '{command_name}'. To check the list of available subcommands for '{command_name}', run 'help'")
+    sys.exit(1)
