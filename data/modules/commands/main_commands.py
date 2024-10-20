@@ -50,5 +50,5 @@ def printHelp():
         print("Something has went wrong.\nError: The Help file could not be found. Please make sure that the 'help.txt' file is located in the 'data' directory.")
 
 def printInvalidCommandAndExit():
-    print("Invaild command. To check the list of available commands, run '--help'")
+    print("Invaild command. To check the list of available commands, run 'help'")
     sys.exit(1)

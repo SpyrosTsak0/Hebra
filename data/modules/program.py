@@ -26,7 +26,7 @@ def run():
                 token = usr_input_utils.getAccessToken()
                 main_commands.updateStatus(token)
                     
-            case "--help":
+            case "help":
                 main_commands.printHelp()
         
             case "auto-delete":

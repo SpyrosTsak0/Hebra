@@ -13,7 +13,7 @@ Available commands:
                         > enable   Enable automatic deletion of head branches. (default)
                         > disable  Disable automatic deletion of head branches.
   
-  --help         Display this help page.
+  help         Display this help page.
 
 Examples:
 
