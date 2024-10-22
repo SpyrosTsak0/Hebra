@@ -47,7 +47,7 @@ def run():
                 if arguments_length > 2:
                     repository_names = list()
 
-                    for arguments_count in range(1, arguments_length):
+                    for arguments_count in range(2, arguments_length):
                         argument = arguments[arguments_count]
                         repository_names.append(argument)
                 
