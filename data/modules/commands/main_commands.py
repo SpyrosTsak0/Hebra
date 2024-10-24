@@ -35,7 +35,7 @@ def alterRepositoriesAutoDeleteHeadStatus(token, auto_delete_bool, repository_na
         json_body_dict = {"delete_branch_on_merge": auto_delete_bool}
         json_body_string = json.dumps(json_body_dict)
 
-        response = requests.patch(f"{default_configs.api_url}/repositories/{repository_id}", json_body_string, auth=(None, token))
+        response = requests.patch(f"{default_configs.API_URL}/repositories/{repository_id}", json_body_string, auth=(None, token))
         auth_utils.checkStatusCode(response.status_code)
     
     print("-- Repositories' status altered successfully --")    
@@ -43,7 +43,7 @@ def alterRepositoriesAutoDeleteHeadStatus(token, auto_delete_bool, repository_na
 def printHelp():
 
     try:
-        with open(default_configs.help_file_path, "r") as help_file:
+        with open(default_configs.HELP_FILE_PATH, "r") as help_file:
             help_content = help_file.read()
             print(help_content)
     except:

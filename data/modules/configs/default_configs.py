@@ -1,5 +1,5 @@
 # All the paths start from the repository's root directory.
 
-repositories_json_file_path = "data/repository_data.json"
-help_file_path = "data/help.txt"
-api_url = "https://api.github.com"
+REPOSITORIES_JSON_FILE_PATH = "data/repository_data.json"
+HELP_FILE_PATH = "data/help.txt"
+API_URL = "https://api.github.com"
