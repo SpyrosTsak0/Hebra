@@ -26,26 +26,28 @@ def run():
                 token = usr_input_utils.getAccessToken()
                 main_commands.updateStatus(token)
                     
-            case "--help":
+            case "help":
                 main_commands.printHelp()
         
             case "auto-delete":
 
-                token = usr_input_utils.getAccessToken()
                 auto_delete_bool = True
    
                 match subcommand:
                     case "enable":
-                         auto_delete_bool = True
+                        auto_delete_bool = True
                     case "disable":
                         auto_delete_bool = False
-
+                    case _:
+                        main_commands.printSubcommandNotSpecifiedAndExit("auto-delete")
+                
+                token = usr_input_utils.getAccessToken()
                 repository_names = None
             
-                if arguments_length > 1:
+                if arguments_length > 2:
                     repository_names = list()
 
-                    for arguments_count in range(1, arguments_length):
+                    for arguments_count in range(2, arguments_length):
                         argument = arguments[arguments_count]
                         repository_names.append(argument)
                 
