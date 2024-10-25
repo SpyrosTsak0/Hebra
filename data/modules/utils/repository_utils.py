@@ -32,7 +32,7 @@ def getRepositories(token, repository_ids):
     repositories = list()
 
     for repository_id in repository_ids:
-        main_response = requests.get(f"{default_configs.api_url}/repositories/{repository_id}", auth=(None, token))
+        main_response = requests.get(f"{default_configs.API_URL}/repositories/{repository_id}", auth=(None, token))
         
         auth_utils.checkStatusCode(main_response.status_code)
 
@@ -44,9 +44,12 @@ def getRepositories(token, repository_ids):
         repository_id = main_repository_info.get("id")
         repository_auto_delete_head_bool = main_repository_info.get("delete_branch_on_merge")
 
-        protection_response = requests.get(f"{default_configs.api_url}/repos/{username}/{repository_name}/branches/main/protection", auth=(None, token))
+        protection_response = requests.get(f"{default_configs.API_URL}/repos/{username}/{repository_name}/branches/main/protection", auth=(None, token))
 
-        repository_protection_rules = protection_response.json()
+        repository_protection_rules = None
+
+        if str(protection_response.status_code).startswith("2"):
+            repository_protection_rules = protection_response.json()
 
         repository = _repository(repository_name, repository_id, repository_auto_delete_head_bool, repository_protection_rules)
         repositories.append(repository)
@@ -56,7 +59,7 @@ def getRepositories(token, repository_ids):
 def getRepositoriesIDs(token, repository_names = None):
     repository_ids = list()
 
-    response = requests.get(f"{default_configs.api_url}/user/repos", auth=(None, token))
+    response = requests.get(f"{default_configs.API_URL}/user/repos", auth=(None, token))
     auth_utils.checkStatusCode(response.status_code)
 
     repositories_info = response.json()
@@ -82,7 +85,7 @@ def getRepositoriesIDs(token, repository_names = None):
 
 def saveRepositories(repositories):
 
-    with open(default_configs.repositories_json_file_path, "w") as repositories_datafile:
+    with open(default_configs.REPOSITORIES_JSON_FILE_PATH, "w") as repositories_datafile:
         repositories_datafile.write("[")
 
         repositories_length = len(repositories)
@@ -101,10 +104,10 @@ def saveRepositories(repositories):
 
 def readRepositories():
 
-    if os.path.isfile(default_configs.repositories_json_file_path):
+    if os.path.isfile(default_configs.REPOSITORIES_JSON_FILE_PATH):
         repositories = list()
 
-        with open(default_configs.repositories_json_file_path, "r") as repositories_datafile:
+        with open(default_configs.REPOSITORIES_JSON_FILE_PATH, "r") as repositories_datafile:
             try:
                 repository_jsonstring = repositories_datafile.read()
                 repositories_list = json.loads(repository_jsonstring)
