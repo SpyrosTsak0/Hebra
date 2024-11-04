@@ -10,13 +10,13 @@ class CommandController:
     def executeCommand(self, arguments, flags):
         command = arguments[0] if arguments else "help"
         subcommand = None
-        arguments = None
+        left_arguments = None
         arguments_length = len(arguments)
 
         if arguments_length > 1:
             subcommand = arguments[1]
         if arguments_length > 2:
-            arguments = list(set(arguments) - {command, subcommand})
+            left_arguments = list(set(arguments) - {command, subcommand})
         
         if command == "status":
             self.printStatus()
@@ -30,7 +30,7 @@ class CommandController:
 
         elif command == "auto-delete-head":
             token = self.user_input_manager.getAccessToken()
-            self.setAutoDeleteHeadStatus(token, subcommand, arguments)
+            self.setAutoDeleteHeadStatus(token, subcommand, left_arguments)
 
         else:
             self.error_manager.printErrorAndExit("Invalid command. To check the list of available commands, run 'help'")
