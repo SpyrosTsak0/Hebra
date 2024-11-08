@@ -7,7 +7,7 @@ Available commands:
   
   update         Update the status of your repositories. Retrieve your repositories' status, then save them locally.
   
-  auto-delete    Manage auto-deletion of head branches across repositories.
+  auto-delete-head    Manage auto-deletion of head branches across repositories.
   
                      Subcommands:
                         > enable   Enable automatic deletion of head branches.
@@ -24,15 +24,15 @@ Examples:
       hebra.py update
   
   To enable the automatic deletion of head branches for all repositories:
-      hebra.py auto-delete enable
+      hebra.py auto-delete-head enable
   
   To disable the automatic deletion of head branches for all repositories:
-      hebra.py auto-delete disable
+      hebra.py auto-delete-head disable
 
   To enable the automatic deletion of head branches for a specific repository:
-      hebra.py auto-delete enable repository_name
+      hebra.py auto-delete-head enable repository_name
   
   To disable the automatic deletion of head branches for multiple repositories:
-      hebra.py aut-delete disable repository_name_1 repository_name_2 repository_name_3
+      hebra.py auto-delete-head disable repository_name_1 repository_name_2 repository_name_3
   
 --------------------

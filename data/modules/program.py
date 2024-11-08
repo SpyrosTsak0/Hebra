@@ -1,61 +1,23 @@
-import data.modules.commands.main_commands as main_commands
-import data.modules.utils.usr_input_utils as usr_input_utils
+from data.modules.controllers import CommandController
+from data.modules.managers import RequestsManager, DataManager, ErrorManager, UserInputManager, ParseManager
 
-def run():
-
-    arguments = usr_input_utils.getArguments()
-    arguments_length = len(arguments)
-
-    
-    if arguments_length > 0:
+class Program:
+    def __init__(self):
+        self.requests_manager = RequestsManager()
+        self.data_manager = DataManager()
+        self.error_manager = ErrorManager()
+        self.user_input_manager = UserInputManager()
+        self.parse_manager = ParseManager()
         
-        command = arguments[0]
-        subcommand = None
+        self.command_controller = CommandController(
+            requests_manager = self.requests_manager,
+            data_manager = self.data_manager,
+            error_manager = self.error_manager,
+            user_input_manager = self.user_input_manager,
+            parse_manager = self.parse_manager
+        )
 
-        if arguments_length > 1:
-            subcommand = arguments[1]
-
-        match command:
-        
-            case "status":
-            
-                main_commands.printStatus()
-            
-            case "update":
-                
-                token = usr_input_utils.getAccessToken()
-                main_commands.updateStatus(token)
-                    
-            case "help":
-                main_commands.printHelp()
-        
-            case "auto-delete":
-
-                auto_delete_bool = True
-   
-                match subcommand:
-                    case "enable":
-                        auto_delete_bool = True
-                    case "disable":
-                        auto_delete_bool = False
-                    case _:
-                        main_commands.printSubcommandNotSpecifiedAndExit("auto-delete")
-                
-                token = usr_input_utils.getAccessToken()
-                repository_names = None
-            
-                if arguments_length > 2:
-                    repository_names = list()
-
-                    for arguments_count in range(2, arguments_length):
-                        argument = arguments[arguments_count]
-                        repository_names.append(argument)
-                
-
-                main_commands.alterRepositoriesAutoDeleteHeadStatus(token, auto_delete_bool, repository_names)
-                main_commands.updateStatus(token)
-            
-            case _:
-                main_commands.printInvalidCommandAndExit()     
-    else:
-        main_commands.printHelp()       
+    def run(self):
+        arguments = self.user_input_manager.getArguments()
+        flags = self.user_input_manager.getFlags()
+        self.command_controller.executeCommand(arguments, flags)
