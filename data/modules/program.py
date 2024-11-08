@@ -1,25 +1,20 @@
-from data.modules.controllers.command_controller import CommandController
-from data.modules.managers.repository_manager import RepositoryManager
-from data.modules.managers.error_manager import ErrorManager
-from data.modules.managers.user_input_manager import UserInputManager
-from data.modules.configs.constants import Constants
-from data.modules.configs.base_classes.repository import Repository
+from data.modules.controllers import CommandController
+from data.modules.managers import RequestsManager, DataManager, ErrorManager, UserInputManager, ParseManager
 
 class Program:
     def __init__(self):
-        self.constants = Constants()
-        self.base_classes = {"Repository": Repository}
-
-        self.repository_manager = RepositoryManager(self.base_classes, self.constants)
+        self.requests_manager = RequestsManager()
+        self.data_manager = DataManager()
         self.error_manager = ErrorManager()
         self.user_input_manager = UserInputManager()
+        self.parse_manager = ParseManager()
         
         self.command_controller = CommandController(
-            base_classes = self.base_classes,
-            constants = self.constants,
-            repository_manager = self.repository_manager,
+            requests_manager = self.requests_manager,
+            data_manager = self.data_manager,
             error_manager = self.error_manager,
             user_input_manager = self.user_input_manager,
+            parse_manager = self.parse_manager
         )
 
     def run(self):
