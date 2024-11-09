@@ -1,4 +1,7 @@
 # RepoWizard 🧙‍♂️
+![Language](https://img.shields.io/badge/Language-Python-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+<br>
 **RepoWizard 🧙‍♂️** is a Python-based tool designed to offer the ability of managing multiple Github repositories simultaneously. Currently in its early development stages, RepoWizard utilizes the GitHub API to enable, disable, configure and add desired features and settings on more than one repositories at once. As it is still in its initial phases, the tool runs through the Python interpreter for now. Future updates are bound to come and any contributions are extremely welcome.
 
 ## Table of Contents
