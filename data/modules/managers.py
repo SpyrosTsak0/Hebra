@@ -1,4 +1,3 @@
-from data.modules.base_classes import Repository
 import sys, requests, json, os
 
 class ErrorManager:
@@ -67,33 +66,10 @@ class RequestsManager:
         if method == 'patch':
             return requests.patch(full_path, body, auth = _auth)
 
-    def fetchRepositories(self, token, repository_ids):
-        repositories = list()
-
-        for repository_id in repository_ids:
-            main_response = self.makeRequest("get", f"/repositories/{repository_id}", token) # requests.get(f"{API_URL}/repositories/{repository_id}", auth=(None, token))
-            main_response.raise_for_status()
-
-            main_repository_info = main_response.json()
-            username = main_repository_info.get("owner").get("login")
-            repository_name = main_repository_info.get("name")
-
-            protection_response = self.makeRequest("get", f"/repos/{username}/{repository_name}/branches/main/protection", token) #requests.get(f"{API_URL}/repos/{username}/{repository_name}/branches/main/protection", auth=(None, token))
-
-            repository = Repository(
-            repository_name, 
-            main_repository_info.get("id"), 
-            main_repository_info.get("delete_branch_on_merge"),
-            protection_response.json() if str(protection_response.status_code).startswith("2") else None)
-
-            repositories.append(repository)
-    
-        return repositories 
-
-    def getRepositoriesIDs(self, token, repository_names = None):
+    def fetchRepositoriesIDs(self, token, repository_names = None):
         repository_ids = list()
 
-        response = self.makeRequest("get", "/user/repos", token) # requests.get(f"{API_URL}/user/repos", auth=(None, token))
+        response = self.makeRequest("get", "/user/repos", token)
         response.raise_for_status()
         repositories_info = response.json()
 
@@ -120,48 +96,50 @@ class DataManager:
     REPOSITORIES_JSON_FILE_PATH = "data/repository_data.json"
     HELP_FILE_PATH = "data/help.txt"
 
+    def readFile(self, path):
+        if os.path.isfile(path):
+            with open(path, "r") as file:
+                return file.read()
+    
+    def writeFile(self, path, string):
+        with open(path, "w") as file:
+            file.write(string)
+
     def saveRepositories(self, repositories):
-        with open(self.REPOSITORIES_JSON_FILE_PATH, "w") as repositories_datafile:
-            repositories_datafile.write("[")
-            repositories_length = len(repositories)
+        repositories_jsonstring = str()
+        repositories_jsonstring += "["
 
-            for repository_count in range(repositories_length):
-                repository = repositories[repository_count]
-                repository_dict = repository.__dict__
-                repository_jsonstring = json.dumps(repository_dict)
+        for repository in repositories:
+            repository_dict = repository.__dict__
+            repositories_jsonstring += json.dumps(repository_dict)
 
-                repositories_datafile.write(repository_jsonstring)
-
-                if repository_count + 1 < repositories_length:
-                    repositories_datafile.write(",")
+            if repositories.index(repository) + 1 < len(repositories):
+                repositories_jsonstring += ","
         
-            repositories_datafile.write("]")
+        repositories_jsonstring += "]"
+        self.writeFile(self.REPOSITORIES_JSON_FILE_PATH, repositories_jsonstring)
 
     def readRepositories(self):
-        if os.path.isfile(self.REPOSITORIES_JSON_FILE_PATH):
-            repositories = list()
-
+        repository_jsonstring = self.readFile(self.REPOSITORIES_JSON_FILE_PATH)
+       
+        if repository_jsonstring  != None:
             try:
-                with open(self.REPOSITORIES_JSON_FILE_PATH, "r") as repositories_datafile:
-                    repository_jsonstring = repositories_datafile.read()
-                    repositories_list = json.loads(repository_jsonstring)
-                
-                    for repository_dict in repositories_list:
-                        repository = Repository(
-                        repository_dict.get("name"), 
-                        repository_dict.get("id"),
-                        repository_dict.get("auto_delete_head_bool"),
-                        repository_dict.get("protection_rule"))
-                        
-                        repositories.append(repository)
-                
-                    return repositories
+                repositories_list = json.loads(repository_jsonstring)
             except:
                 return None
+                
+            for repository_dict in repositories_list:
+                repository_name = repository_dict.get("name")
+                repository_id = repository_dict.get("id")
+
+                if repository_name == None or repository_id == None:
+                    return None
+                    
+            return repositories_list
 
     def readHelpFile(self):
-        with open(self.HELP_FILE_PATH, "r") as help_file:
-            print(help_file.read())
+        return self.readFile(self.HELP_FILE_PATH)
+            
         
 class ParseManager:
 
