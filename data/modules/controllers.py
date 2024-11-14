@@ -1,11 +1,15 @@
 
 class CommandController:
-    def __init__(self, requests_manager, data_manager, error_manager, user_input_manager, parse_manager):
-        self.requests_manager = requests_manager
-        self.data_manager = data_manager
+
+    def __init__(self, error_manager, user_input_manager, data_manager, requests_manager, parse_manager):
         self.error_manager = error_manager
         self.user_input_manager = user_input_manager
+        self.data_manager = data_manager
+        self.requests_manager = requests_manager
         self.parse_manager = parse_manager
+
+        self.updateStatus = self.error_manager.handleRequestExceptions(self.updateStatus)
+        self.setAutoDeleteHeadStatus = self.error_manager.handleRequestExceptions(self.setAutoDeleteHeadStatus)
 
     def executeCommand(self, arguments, flags):
         command = arguments[0] if arguments else "help"
@@ -25,12 +29,12 @@ class CommandController:
             token = self.user_input_manager.getAccessToken()
             self.updateStatus(token)
 
-        elif command == "help":
-            self.printHelp()
-
         elif command == "auto-delete-head":
             token = self.user_input_manager.getAccessToken()
             self.setAutoDeleteHeadStatus(token, subcommand, left_arguments)
+        
+        elif command == "help":
+            self.printHelp()
 
         else:
             self.error_manager.printErrorAndExit("Invalid command. To check the list of available commands, run 'help'")
@@ -54,13 +58,13 @@ class CommandController:
                 print(f"  > Head branches are NOT automatically deleted in repository '{repository_name}' (ID: {repository_id}).")
             else:
                 self.error_manager.printErrorAndExit(f"The boolean 'delete_branch_on_merge' could not be found in repository '{repository_name}' (ID: {repository_id}).")
-
+   
     def updateStatus(self, token):
         repository_ids = self.requests_manager.getRepositoriesIDs(token)
         repositories = self.requests_manager.fetchRepositories(token, repository_ids)
         self.data_manager.saveRepositories(repositories)
         print("-- Repositories' status updated successfully --")
-
+   
     def setAutoDeleteHeadStatus(self, token, subcommand, repository_names = None):
         if not subcommand:
             self.error_manager.printErrorAndExit(self.error_manager.SUBCOMMAND_NOT_PASSED_ERROR)
@@ -74,12 +78,12 @@ class CommandController:
         
         if auto_delete_head_bool == None:
             self.error_manager.printErrorAndExit(self.error_manager.INVALID_SUBCOMMAND_ERROR)
-
+        
         repository_ids = self.requests_manager.getRepositoriesIDs(token, repository_names)
 
         body_dict = {"delete_branch_on_merge": auto_delete_head_bool}
         json_body_string = self.parse_manager.dictToJsonString(body_dict)
-        
+
         for repository_id in repository_ids:
             response = self.requests_manager.makeRequest("patch", f"/repositories/{repository_id}", token, json_body_string) # requests.patch(f"{self.constants.API_URL}/repositories/{repository_id}", json_body_string, auth=(None, token))
         

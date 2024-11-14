@@ -10,6 +10,19 @@ class ErrorManager:
         print(f"Something has went wrong. Error: {error_text}")
         sys.exit(1)
 
+    def handleRequestExceptions(self, func):
+        def wrapper(*args, **kwargs): 
+            try:
+                return func(*args, **kwargs)
+            except requests.exceptions.ConnectionError as connection_error:
+                self.printErrorAndExit("There was a problem establishing a connection with the GitHub API. This may happen due to a network or server-side issue.")
+            except requests.exceptions.HTTPError as http_error:
+                self.printErrorAndExit(f"HTTP request was not successful - {http_error}")
+            except Exception as exception:
+                self.printErrorAndExit(f"An unexpected error occurred - {exception}")
+        
+        return wrapper  
+                
 class UserInputManager:
 
     def getArguments(self):
@@ -44,7 +57,7 @@ class UserInputManager:
 class RequestsManager:
     
     API_URL = "https://api.github.com"
-    
+
     def makeRequest(self, method, path, token = None, body = None):
         full_path = self.API_URL + path
         _auth = (None, token)
@@ -58,14 +71,14 @@ class RequestsManager:
         repositories = list()
 
         for repository_id in repository_ids:
-            main_response = self.makeRequest("get", f"/repositories/{repository_id}", token) # requests.get(f"{self.API_URL}/repositories/{repository_id}", auth=(None, token))
+            main_response = self.makeRequest("get", f"/repositories/{repository_id}", token) # requests.get(f"{API_URL}/repositories/{repository_id}", auth=(None, token))
             main_response.raise_for_status()
 
             main_repository_info = main_response.json()
             username = main_repository_info.get("owner").get("login")
             repository_name = main_repository_info.get("name")
 
-            protection_response = self.makeRequest("get", f"/repos/{username}/{repository_name}/branches/main/protection", token) #requests.get(f"{self.API_URL}/repos/{username}/{repository_name}/branches/main/protection", auth=(None, token))
+            protection_response = self.makeRequest("get", f"/repos/{username}/{repository_name}/branches/main/protection", token) #requests.get(f"{API_URL}/repos/{username}/{repository_name}/branches/main/protection", auth=(None, token))
 
             repository = Repository(
             repository_name, 
@@ -80,7 +93,7 @@ class RequestsManager:
     def getRepositoriesIDs(self, token, repository_names = None):
         repository_ids = list()
 
-        response = self.makeRequest("get", "/user/repos", token) # requests.get(f"{self.API_URL}/user/repos", auth=(None, token))
+        response = self.makeRequest("get", "/user/repos", token) # requests.get(f"{API_URL}/user/repos", auth=(None, token))
         response.raise_for_status()
         repositories_info = response.json()
 
@@ -145,15 +158,16 @@ class DataManager:
                     return repositories
             except:
                 return None
-    
+
     def readHelpFile(self):
         with open(self.HELP_FILE_PATH, "r") as help_file:
             print(help_file.read())
         
 class ParseManager:
+
     def dictToJsonString(self, dictionary):
         return json.dumps(dictionary)
-    
+
     def jsonStringToDict(self, json_string):
         return json.loads(json_string)
                 
