@@ -1,38 +1,39 @@
-Usage: hebra.py [command] [subcommand] [arguments]
+Usage: repowizard.py [command] [subcommand] [arguments]
 
 Available commands:
 
-  status         Display the status of your repositories.
-                 (If the "repositories.json" file contains invalid json syntax or does not exist, the update command will be executed automatically).
+  status              Display the status of your repositories.
+                      (If the "repositories.json" file contains invalid json syntax or does not exist, 
+                      the update command will be executed automatically).
   
-  update         Update the status of your repositories. Retrieve your repositories' status, then save them locally.
+  update              Update the status of your repositories. Retrieve your repositories' status, then save them locally.
   
   auto-delete-head    Manage auto-deletion of head branches across repositories.
   
-                     Subcommands:
-                        > enable   Enable automatic deletion of head branches.
-                        > disable  Disable automatic deletion of head branches.
+                        Subcommands:
+                          > enable   Enable automatic deletion of head branches.
+                          > disable  Disable automatic deletion of head branches.
   
-  help         Display this help page.
+  help                Display this help page.
 
 Examples:
 
   To check the status of all repositories:
-      hebra.py status
+      repowizard.py status
   
   To update repository status:
-      hebra.py update
+      repowizard.py update
   
   To enable the automatic deletion of head branches for all repositories:
-      hebra.py auto-delete-head enable
+      repowizard.py auto-delete-head enable
   
   To disable the automatic deletion of head branches for all repositories:
-      hebra.py auto-delete-head disable
+      repowizard.py auto-delete-head disable
 
   To enable the automatic deletion of head branches for a specific repository:
-      hebra.py auto-delete-head enable repository_name
+      repowizard.py auto-delete-head enable repository_name
   
   To disable the automatic deletion of head branches for multiple repositories:
-      hebra.py auto-delete-head disable repository_name_1 repository_name_2 repository_name_3
+      repowizard.py auto-delete-head disable repository_name_1 repository_name_2 repository_name_3
   
 --------------------
