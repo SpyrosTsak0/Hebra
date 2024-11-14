@@ -1,11 +1,11 @@
 
 class CommandController:
-
-    def __init__(self, error_manager, user_input_manager, data_manager, requests_manager, parse_manager):
+    def __init__(self, base_classes, requests_manager, data_manager, error_manager, user_input_manager, parse_manager):
+        self.base_classes = base_classes
+        self.requests_manager = requests_manager
+        self.data_manager = data_manager
         self.error_manager = error_manager
         self.user_input_manager = user_input_manager
-        self.data_manager = data_manager
-        self.requests_manager = requests_manager
         self.parse_manager = parse_manager
 
         self.updateStatus = self.error_manager.handleRequestExceptions(self.updateStatus)
@@ -40,59 +40,86 @@ class CommandController:
             self.error_manager.printErrorAndExit("Invalid command. To check the list of available commands, run 'help'")
 
     def printStatus(self):
-        repositories = self.data_manager.readRepositories()
-
-        if repositories is None:
+        repositories_list = self.data_manager.readRepositories()
+        if repositories_list is None:
             token = self.user_input_manager.getAccessToken()
             self.updateStatus(token)
-            repositories = self.data_manager.readRepositories()
+            repositories_list = self.data_manager.readRepositories()
 
-        for repository in repositories:
-            repository_name = repository.name
-            repository_id = repository.id
-            repository_auto_delete_head_bool = repository.auto_delete_head_bool
-    
-            if repository_auto_delete_head_bool:
-                print(f"  > Head branches are automatically deleted in repository '{repository_name}' (ID: {repository_id}).")
-            elif not repository_auto_delete_head_bool:
-                print(f"  > Head branches are NOT automatically deleted in repository '{repository_name}' (ID: {repository_id}).")
+        def print_nested(key, value, indent = 2):
+            prefix = "  " * indent
+
+            if isinstance(value, dict):  
+                print(f"{prefix}> {key}:")
+                for sub_key, sub_value in value.items():
+                    print_nested(sub_key, sub_value, indent + 2)
             else:
-                self.error_manager.printErrorAndExit(f"The boolean 'delete_branch_on_merge' could not be found in repository '{repository_name}' (ID: {repository_id}).")
-   
+                print(f"{prefix}> {key}: {value}")
+
+        for repository_dict in repositories_list:
+            print(f"-- For repository '{repository_dict.get('name')}' (ID: {str(repository_dict.get('id'))}) --")
+        
+            for key, value in repository_dict.items():
+                if key == "protection_rules" or key == 'id' or key == 'name':
+                    continue
+                print_nested(key, value) 
+
+            print("\n")
+
     def updateStatus(self, token):
-        repository_ids = self.requests_manager.getRepositoriesIDs(token)
-        repositories = self.requests_manager.fetchRepositories(token, repository_ids)
+        repository_ids = self.requests_manager.fetchRepositoriesIDs(token)
+        
+        repositories = list()
+
+        for repository_id in repository_ids:
+            main_response = self.requests_manager.makeRequest("get", f"/repositories/{repository_id}", token) 
+            main_response.raise_for_status()
+
+            main_repository_info = main_response.json()
+            username = main_repository_info.get("owner").get("login")
+            repository_name = main_repository_info.get("name")
+
+            protection_response = self.requests_manager.makeRequest("get", f"/repos/{username}/{repository_name}/branches/main/protection", token) 
+
+            repository = self.base_classes.Repository(
+            repository_name, 
+            main_repository_info.get("id"), 
+            main_repository_info.get("delete_branch_on_merge"),
+            protection_response.json() if str(protection_response.status_code).startswith("2") else None)
+            
+            repositories.append(repository)
+            
         self.data_manager.saveRepositories(repositories)
-        print("-- Repositories' status updated successfully --")
-   
+        print("\n-- Repositories' status updated successfully --\n")
+
     def setAutoDeleteHeadStatus(self, token, subcommand, repository_names = None):
         if not subcommand:
             self.error_manager.printErrorAndExit(self.error_manager.SUBCOMMAND_NOT_PASSED_ERROR)
 
-        auto_delete_head_bool = None
+        auto_delete_head = None
         
         if subcommand == "enable":
-            auto_delete_head_bool = True
+            auto_delete_head = True
         elif subcommand == "disable":
-            auto_delete_head_bool = False
+            auto_delete_head = False
         
-        if auto_delete_head_bool == None:
+        if auto_delete_head == None:
             self.error_manager.printErrorAndExit(self.error_manager.INVALID_SUBCOMMAND_ERROR)
-        
-        repository_ids = self.requests_manager.getRepositoriesIDs(token, repository_names)
 
-        body_dict = {"delete_branch_on_merge": auto_delete_head_bool}
+        repository_ids = self.requests_manager.fetchRepositoriesIDs(token, repository_names)
+
+        body_dict = {"delete_branch_on_merge": auto_delete_head}
         json_body_string = self.parse_manager.dictToJsonString(body_dict)
 
         for repository_id in repository_ids:
-            response = self.requests_manager.makeRequest("patch", f"/repositories/{repository_id}", token, json_body_string) # requests.patch(f"{self.constants.API_URL}/repositories/{repository_id}", json_body_string, auth=(None, token))
+            response = self.requests_manager.makeRequest("patch", f"/repositories/{repository_id}", token, json_body_string)
         
         print("-- Repositories' status altered successfully --")  
         self.updateStatus(token)
 
     def printHelp(self):
         try:
-            self.data_manager.readHelpFile()
+            print(self.data_manager.readHelpFile())
         except:
             self.error_manager.printErrorAndExit("The Help file could not be found. Please make sure that the 'help.txt' file is located in the 'data' directory.")
 
