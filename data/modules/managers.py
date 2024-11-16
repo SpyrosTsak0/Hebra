@@ -1,30 +1,21 @@
 import sys, requests, json, os
 
-class ErrorManager:
+class CommunicationManager:
 
-    SUBCOMMAND_NOT_PASSED_ERROR = "A subcommand has not been passed. To check the list of available subcommands for the command entered, run 'help'."
-    INVALID_SUBCOMMAND_ERROR = "Invalid subcommand. To check the list of available subcommands for the command entered, run 'help'."
-
-    def printErrorAndExit(self, error_text):
-        print(f"Something has went wrong. Error: {error_text}")
+    def printText(self, text = None):
+        if text != None:
+            print("\033[96m {}\033[00m".format(text))
+        else:
+            print()
+    
+    def printErrorAndExit(self, error_message):
+        print("\033[91m {}\033[00m".format(error_message))
         sys.exit(1)
-
-    def handleRequestExceptions(self, func):
-        def wrapper(*args, **kwargs): 
-            try:
-                return func(*args, **kwargs)
-            except requests.exceptions.ConnectionError as connection_error:
-                self.printErrorAndExit("There was a problem establishing a connection with the GitHub API. This may happen due to a network or server-side issue.")
-            except requests.exceptions.HTTPError as http_error:
-                self.printErrorAndExit(f"HTTP request was not successful - {http_error}")
-            except Exception as exception:
-                self.printErrorAndExit(f"An unexpected error occurred - {exception}")
-        
-        return wrapper  
-                
-class UserInputManager:
-
-    def getArguments(self):
+    
+    def printAndGetInput(self, input_message):
+        return input("\033[93m {}\033[00m".format(input_message))
+    
+    def fetchArguments(self):
         arguments = self.__getArguments()
 
         for argument in arguments:
@@ -33,7 +24,7 @@ class UserInputManager:
     
         return arguments
 
-    def getFlags(self):
+    def fetchFlags(self):
         arguments = self.__getArguments()
         flags = list()
 
@@ -43,9 +34,31 @@ class UserInputManager:
         
         return flags
 
-    def getAccessToken(self):
-        token = input("Enter your access token: ")
-        return token
+    #-------------------------------
+
+    def printSubcommandNotPassedAndExit(self):
+        self.printErrorAndExit("A subcommand has not been passed. To check the list of available subcommands for the command entered, run 'help'.")
+    
+    def printInvalidSubcommandAndExit(self):
+        self.printErrorAndExit("Invalid subcommand. To check the list of available subcommands for the command entered, run 'help'.")
+    
+    def printAndGetAccessToken(self):
+        return self.printAndGetInput("Enter your GitHub access token: ")
+    
+    
+    def handleRequestErrors(self, func):
+        def wrapper(*args, **kwargs): 
+            try:
+                return func(*args, **kwargs)
+            except requests.exceptions.ConnectionError:
+                self.printErrorAndExit("There was a problem establishing a connection with the GitHub API. This may happen due to a network or server-side issue.}")
+            except requests.exceptions.HTTPError as http_error:
+                self.printErrorAndExit(f"HTTP request was not successful - {http_error}")
+        
+        return wrapper 
+
+    #-------------------------------
+    #-------------------------------
 
     def __getArguments(self):
         arguments = list(sys.argv)
@@ -55,18 +68,20 @@ class UserInputManager:
 
 class RequestsManager:
     
-    API_URL = "https://api.github.com"
-
     def makeRequest(self, method, path, token = None, body = None):
-        full_path = self.API_URL + path
+        api_url = "https://api.github.com"
+        
+        full_path = api_url + path
         _auth = (None, token)
 
         if method == 'get':
             return requests.get(full_path, auth = _auth)
         if method == 'patch':
             return requests.patch(full_path, body, auth = _auth)
+    
+    #-------------------------------
 
-    def fetchRepositoriesIDs(self, token, repository_names = None):
+    def fetchRepositoryIDs(self, token, repository_names = None):
         repository_ids = list()
 
         response = self.makeRequest("get", "/user/repos", token)
@@ -93,54 +108,44 @@ class RequestsManager:
 
 class DataManager:
 
-    REPOSITORIES_JSON_FILE_PATH = "data/repository_data.json"
-    HELP_FILE_PATH = "data/help.txt"
+    paths = {
+        "repository_data_file": "data/repository_data.json",
+        "help_file": "data/help.txt"
+    }
 
-    def readFile(self, path):
-        if os.path.isfile(path):
-            with open(path, "r") as file:
+    def readFile(self, file_path):
+        if os.path.isfile(file_path):
+            with open(file_path, "r") as file:
                 return file.read()
     
-    def writeFile(self, path, string):
-        with open(path, "w") as file:
+    def writeFile(self, file_path, string):
+        with open(file_path, "w") as file:
             file.write(string)
+    
+    #-------------------------------
 
-    def saveRepositories(self, repositories):
-        repositories_jsonstring = str()
-        repositories_jsonstring += "["
+    def writeJsonFile(self, json_file_path, dict_list):
+        json_string = str()
+        json_string += "["
 
-        for repository in repositories:
-            repository_dict = repository.__dict__
-            repositories_jsonstring += json.dumps(repository_dict)
+        for dictionary in dict_list:
+            json_string += json.dumps(dictionary)
 
-            if repositories.index(repository) + 1 < len(repositories):
-                repositories_jsonstring += ","
+            if dict_list.index(dictionary) + 1 < len(dict_list):
+                json_string += ","
         
-        repositories_jsonstring += "]"
-        self.writeFile(self.REPOSITORIES_JSON_FILE_PATH, repositories_jsonstring)
+        json_string += "]"
+        self.writeFile(json_file_path, json_string)
 
-    def readRepositories(self):
-        repository_jsonstring = self.readFile(self.REPOSITORIES_JSON_FILE_PATH)
+    def readJsonFile(self, json_file_path):
+        json_string = self.readFile(json_file_path)
        
-        if repository_jsonstring  != None:
+        if json_string  != None:
             try:
-                repositories_list = json.loads(repository_jsonstring)
+                return json.loads(json_string)
             except:
                 return None
-                
-            for repository_dict in repositories_list:
-                repository_name = repository_dict.get("name")
-                repository_id = repository_dict.get("id")
-
-                if repository_name == None or repository_id == None:
-                    return None
-                    
-            return repositories_list
-
-    def readHelpFile(self):
-        return self.readFile(self.HELP_FILE_PATH)
             
-        
 class ParseManager:
 
     def dictToJsonString(self, dictionary):
