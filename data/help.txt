@@ -1,3 +1,6 @@
+RepoWizard 🧙‍♂️ | https://github.com/SpyrosTsak0/repowizard
+--------------------
+
 Usage: repowizard.py [command] [subcommand] [arguments]
 
 Available commands:
@@ -6,7 +9,7 @@ Available commands:
                       (If the "repositories.json" file contains invalid json syntax or does not exist, 
                       the update command will be executed automatically).
   
-  update              Update the status of your repositories. Retrieve your repositories' status, then save them locally.
+  update              Update the status of your repositories. Retrieve your repositories' statuses, then save them locally.
   
   auto-delete-head    Manage auto-deletion of head branches across repositories.
   
@@ -35,5 +38,5 @@ Examples:
   
   To disable the automatic deletion of head branches for multiple repositories:
       repowizard.py auto-delete-head disable repository_name_1 repository_name_2 repository_name_3
-  
+
 --------------------

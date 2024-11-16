@@ -7,20 +7,18 @@ class Program:
         self.base_classes = BaseClasses
         self.requests_manager = RequestsManager()
         self.data_manager = DataManager()
-        self.error_manager = ErrorManager()
-        self.user_input_manager = UserInputManager()
+        self.communication_manager = CommunicationManager()
         self.parse_manager = ParseManager()
         
         self.command_controller = CommandController(
             base_classes = self.base_classes,
             requests_manager = self.requests_manager,
             data_manager = self.data_manager,
-            error_manager = self.error_manager,
-            user_input_manager = self.user_input_manager,
+            communication_manager = self.communication_manager,
             parse_manager = self.parse_manager
         )
 
     def run(self):
-        arguments = self.user_input_manager.getArguments()
-        flags = self.user_input_manager.getFlags()
+        arguments = self.communication_manager.fetchArguments()
+        flags = self.communication_manager.fetchFlags()
         self.command_controller.executeCommand(arguments, flags)

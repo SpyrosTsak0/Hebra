@@ -1,15 +1,14 @@
 
 class CommandController:
-    def __init__(self, base_classes, requests_manager, data_manager, error_manager, user_input_manager, parse_manager):
+    def __init__(self, base_classes, requests_manager, data_manager, communication_manager, parse_manager):
         self.base_classes = base_classes
         self.requests_manager = requests_manager
         self.data_manager = data_manager
-        self.error_manager = error_manager
-        self.user_input_manager = user_input_manager
+        self.communication_manager = communication_manager
         self.parse_manager = parse_manager
 
-        self.updateStatus = self.error_manager.handleRequestExceptions(self.updateStatus)
-        self.setAutoDeleteHeadStatus = self.error_manager.handleRequestExceptions(self.setAutoDeleteHeadStatus)
+        self.updateStatus = self.communication_manager.handleRequestErrors(self.updateStatus)
+        self.setAutoDeleteHeadStatus = self.communication_manager.handleRequestErrors(self.setAutoDeleteHeadStatus)
 
     def executeCommand(self, arguments, flags):
         command = arguments[0] if arguments else "help"
@@ -26,48 +25,50 @@ class CommandController:
             self.printStatus()
 
         elif command == "update":
-            token = self.user_input_manager.getAccessToken()
+            token = self.communication_manager.printAndGetAccessToken()
             self.updateStatus(token)
 
         elif command == "auto-delete-head":
-            token = self.user_input_manager.getAccessToken()
+            token = self.communication_manager.printAndGetAccessToken()
             self.setAutoDeleteHeadStatus(token, subcommand, left_arguments)
         
         elif command == "help":
             self.printHelp()
 
         else:
-            self.error_manager.printErrorAndExit("Invalid command. To check the list of available commands, run 'help'")
+            self.communication_manager.printErrorAndExit("Invalid command. To check the list of available commands, run 'help'")
+    
+    #-------------------------------
 
     def printStatus(self):
-        repositories_list = self.data_manager.readRepositories()
+        path = self.data_manager.paths.get("repository_data_file")
+
+        repositories_list = self.data_manager.readJsonFile(path)
         if repositories_list is None:
-            token = self.user_input_manager.getAccessToken()
+            token = self.communication_manager.printAndGetAccessToken()
             self.updateStatus(token)
-            repositories_list = self.data_manager.readRepositories()
+            repositories_list = self.data_manager.readJsonFile(path)
 
         def print_nested(key, value, indent = 2):
             prefix = "  " * indent
 
             if isinstance(value, dict):  
-                print(f"{prefix}> {key}:")
+                self.communication_manager.printText(f"{prefix}> {key}:")
                 for sub_key, sub_value in value.items():
                     print_nested(sub_key, sub_value, indent + 2)
             else:
-                print(f"{prefix}> {key}: {value}")
-
+                self.communication_manager.printText(f"{prefix}> {key}: {value}")
+        
         for repository_dict in repositories_list:
-            print(f"-- For repository '{repository_dict.get('name')}' (ID: {str(repository_dict.get('id'))}) --")
+            self.communication_manager.printText(f"For repository '{repository_dict.get('name')}' (ID: {str(repository_dict.get('id'))})")
         
             for key, value in repository_dict.items():
                 if key == "protection_rules" or key == 'id' or key == 'name':
                     continue
-                print_nested(key, value) 
-
-            print("\n")
-
+                print_nested(key, value)
+        
     def updateStatus(self, token):
-        repository_ids = self.requests_manager.fetchRepositoriesIDs(token)
+        repository_ids = self.requests_manager.fetchRepositoryIDs(token)
         
         repositories = list()
 
@@ -87,14 +88,16 @@ class CommandController:
             main_repository_info.get("delete_branch_on_merge"),
             protection_response.json() if str(protection_response.status_code).startswith("2") else None)
             
-            repositories.append(repository)
+            repositories.append(repository.__dict__)
+        
+        path = self.data_manager.paths.get("repository_data_file")
             
-        self.data_manager.saveRepositories(repositories)
-        print("\n-- Repositories' status updated successfully --\n")
+        self.data_manager.writeJsonFile(path, repositories)
+        self.communication_manager.printText("Repository status updated successfully.")
 
     def setAutoDeleteHeadStatus(self, token, subcommand, repository_names = None):
         if not subcommand:
-            self.error_manager.printErrorAndExit(self.error_manager.SUBCOMMAND_NOT_PASSED_ERROR)
+            self.communication_manager.printErrorAndExit(self.communication_manager.SUBCOMMAND_NOT_PASSED_ERROR)
 
         auto_delete_head = None
         
@@ -104,9 +107,9 @@ class CommandController:
             auto_delete_head = False
         
         if auto_delete_head == None:
-            self.error_manager.printErrorAndExit(self.error_manager.INVALID_SUBCOMMAND_ERROR)
+            self.communication_manager.printErrorAndExit(self.communication_manager.INVALID_SUBCOMMAND_ERROR)
 
-        repository_ids = self.requests_manager.fetchRepositoriesIDs(token, repository_names)
+        repository_ids = self.requests_manager.fetchRepositoryIDs(token, repository_names)
 
         body_dict = {"delete_branch_on_merge": auto_delete_head}
         json_body_string = self.parse_manager.dictToJsonString(body_dict)
@@ -114,13 +117,14 @@ class CommandController:
         for repository_id in repository_ids:
             response = self.requests_manager.makeRequest("patch", f"/repositories/{repository_id}", token, json_body_string)
         
-        print("-- Repositories' status altered successfully --")  
+        self.communication_manager.printText("Automatically Delete Head Branches feature altered successfully.")
         self.updateStatus(token)
 
     def printHelp(self):
+        path = self.data_manager.paths.get("help_file")
         try:
-            print(self.data_manager.readHelpFile())
+            self.communication_manager.printText(self.data_manager.readFile(path))
         except:
-            self.error_manager.printErrorAndExit("The Help file could not be found. Please make sure that the 'help.txt' file is located in the 'data' directory.")
+            self.communication_manager.printErrorAndExit("The Help file could not be found. Please make sure that the 'help.txt' file is located in the 'data' directory.")
 
 
