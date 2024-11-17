@@ -1,4 +1,4 @@
-RepoWizard 🧙‍♂️ | https://github.com/SpyrosTsak0/repowizard
+RepoWizard | https://github.com/SpyrosTsak0/repowizard
 --------------------
 
 Usage: repowizard.py [command] [subcommand] [arguments]
